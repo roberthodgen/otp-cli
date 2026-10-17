@@ -24,13 +24,13 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: 📦 NuGet Restore
-        run: dotnet restore otp-cli.slnx
+        run: dotnet restore
 
       - name: 🛠 Build
-        run: dotnet build otp-cli.slnx --configuration Release --no-restore
+        run: dotnet build -c Release --no-restore
 
       - name: ✅ Test
-        run: dotnet test otp-cli.slnx --configuration Release --no-build --no-restore
+        run: dotnet test -c Release --no-build --no-restore
 
       - name: 🔍 Validate release version
         run: |
@@ -45,9 +45,9 @@ jobs:
         run: |
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
           mkdir -p build
-          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj --configuration Release --no-restore --runtime win-x64 /p:Version="$PACKAGE_VERSION"
+          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj -c Release --runtime win-x64 /p:Version="$PACKAGE_VERSION"
           cp src/Cli/bin/Release/net10.0/win-x64/publish/otp.exe build/otp_win-x64.exe
-          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj --configuration Release --no-restore --runtime linux-x64 /p:Version="$PACKAGE_VERSION"
+          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj -c Release --runtime linux-x64 /p:Version="$PACKAGE_VERSION"
           cp src/Cli/bin/Release/net10.0/linux-x64/publish/otp build/otp_linux-x64
 
       - name: ⬆️ Upload Windows and Linux binaries
@@ -75,16 +75,13 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: 📦 NuGet Restore
-        run: dotnet restore otp-cli.slnx
-
       - name: 🏗️ Build macOS binaries
         run: |
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
           mkdir -p build
-          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj --configuration Release --no-restore -p:PublishAot=true --runtime osx-x64 /p:Version="$PACKAGE_VERSION"
+          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj -c Release -p:PublishAot=true --runtime osx-x64 /p:Version="$PACKAGE_VERSION"
           cp src/Cli/bin/Release/net10.0/osx-x64/publish/otp build/otp_macos-x64
-          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj --configuration Release --no-restore -p:PublishAot=true --runtime osx-arm64 /p:Version="$PACKAGE_VERSION"
+          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj -c Release -p:PublishAot=true --runtime osx-arm64 /p:Version="$PACKAGE_VERSION"
           cp src/Cli/bin/Release/net10.0/osx-arm64/publish/otp build/otp_macos-arm64
 
       - name: 🔐 Import Apple Signing Certificate
