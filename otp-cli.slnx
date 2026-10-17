@@ -2,7 +2,6 @@
   <Folder Name="/Solution/">
     <File Path=".gitignore" />
     <File Path="AGENTS.md" />
-    <File Path="Makefile" />
     <File Path="README.md" />
     <File Path="TODO.md" />
     <File Path="package.json" />
