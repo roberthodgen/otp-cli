@@ -35,7 +35,8 @@ sets its assembly name to `otp` rather than attempting to set `RootCommand.Name`
 | `copy` | required `label` | none |
 | `delete` | required one-or-more `labels` | none |
 
-`label-or-url`, `label`, and `labels` are string arguments. `--secret`,
+`label-or-url` and `label` are string arguments. `labels` is a one-or-more
+string-array argument so every supplied delete label is retained. `--secret`,
 `--algorithm`, and `--issuer` are string options; `--period` is an integer
 option. The scaffold delegates syntactic required-argument handling to
 `System.CommandLine`. Semantic validation, including requiring `--secret`

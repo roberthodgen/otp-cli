@@ -97,7 +97,7 @@ git commit -m "feat: scaffold OTP CLI projects"
 **Interfaces:**
 - Consumes: `CliApplication.CreateRootCommand(TextWriter? error = null)` from Task 1.
 - Produces: `list`, `create`, `read`, `copy`, and `delete` as the root command's only subcommands.
-- Produces: `create` required string `label-or-url`; optional string `--secret`, optional integer `--period`, optional string `--algorithm`, optional string `--issuer`; `read` and `copy` required string `label`; `delete` required one-or-more string `labels`.
+- Produces: `create` required string `label-or-url`; optional string `--secret`, optional integer `--period`, optional string `--algorithm`, optional string `--issuer`; `read` and `copy` required string `label`; `delete` required one-or-more `string[]` `labels`.
 
 - [ ] **Step 1: Write failing command-definition and parsing tests**
 
