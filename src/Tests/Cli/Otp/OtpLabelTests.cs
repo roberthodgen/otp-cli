@@ -14,6 +14,9 @@ public sealed class OtpLabelTests
     [InlineData(".")]
     [InlineData("..")]
     [InlineData("CON")]
+    [InlineData("con")]
+    [InlineData("Lpt1")]
+    [InlineData("NUL.txt")]
     [InlineData("name.")]
     [InlineData("name ")]
     public void Label_rejects_nonportable_storage_names(string value) =>

@@ -93,10 +93,12 @@ public sealed class OtpCommandService
 
     public OtpCommandOutcome Delete(IReadOnlyList<string> labels)
     {
+        string? currentLabel = null;
         try
         {
             foreach (var label in labels)
             {
+                currentLabel = label;
                 _repository.DeleteIfPresent(OtpLabel.Parse(label));
             }
 
@@ -104,7 +106,7 @@ public sealed class OtpCommandService
         }
         catch (Exception)
         {
-            return Failure("unable to delete OTP");
+            return Failure($"unable to delete OTP: {currentLabel}");
         }
     }
 

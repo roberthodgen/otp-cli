@@ -88,6 +88,19 @@ public sealed class OtpCommandServiceTests
         service.Delete(["missing"]).ShouldBe(new OtpCommandOutcome(0, null, null));
     }
 
+    [Fact]
+    public void Delete_reports_the_label_that_could_not_be_deleted()
+    {
+        var repository = new FakeRepository { ThrowOnDelete = "broken" };
+        var service = CreateService(repository);
+
+        var outcome = service.Delete(["good", "broken"]);
+
+        outcome.ExitCode.ShouldBe(1);
+        outcome.StandardError.ShouldNotBeNull();
+        outcome.StandardError.ShouldContain("broken");
+    }
+
     private static OtpCommandService CreateService(FakeRepository? repository = null, FakeClipboard? clipboard = null) =>
         new(repository ?? new FakeRepository(), KnownSystemClock.FromTime(DateTime.UnixEpoch.AddSeconds(59)), clipboard ?? new FakeClipboard());
 
@@ -103,6 +116,8 @@ public sealed class OtpCommandServiceTests
     private sealed class FakeRepository : IOtpRepository
     {
         private readonly Dictionary<string, string> _entries = new(StringComparer.Ordinal);
+
+        public string? ThrowOnDelete { get; init; }
 
         public string this[string label]
         {
@@ -121,6 +136,10 @@ public sealed class OtpCommandServiceTests
             return true;
         }
 
-        public void DeleteIfPresent(OtpLabel label) => _entries.Remove(label.Value);
+        public void DeleteIfPresent(OtpLabel label)
+        {
+            if (label.Value == ThrowOnDelete) throw new IOException();
+            _entries.Remove(label.Value);
+        }
     }
 }
