@@ -1,11 +1,11 @@
 # TODO
 
 - [ ] GitHub CI/CD
-  - [ ] PR template
+  - [x] PR template
   - [ ] GitHub action: CI run unit tests on PR
   - [ ] GitHub action: CD creates build artifacts + GitHub release
 
-- [x] .NET CLI
+- [ ] .NET CLI
   - [x] .NET 10
   - [x] System.CommandLine
   - [x] xUnit + Shouldly unit tests
