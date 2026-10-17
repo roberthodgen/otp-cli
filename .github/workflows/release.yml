@@ -1,0 +1,154 @@
+name: 🚀 Release
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ➡️ Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: 📦 NuGet Restore
+        run: dotnet restore otp-cli.slnx
+
+      - name: 🛠 Build
+        run: dotnet build otp-cli.slnx --configuration Release --no-restore
+
+      - name: ✅ Test
+        run: dotnet test otp-cli.slnx --configuration Release --no-build --no-restore
+
+      - name: 🔍 Validate release version
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+
+          if [ "$GITHUB_REF_NAME" != "v$PACKAGE_VERSION" ]; then
+            printf 'Release tag %s does not match package.json version %s; expected tag v%s\n' "$GITHUB_REF_NAME" "$PACKAGE_VERSION" "$PACKAGE_VERSION" >&2
+            exit 1
+          fi
+
+      - name: 🏗️ Build Windows and Linux binaries
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          mkdir -p build
+          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj --configuration Release --no-restore --runtime win-x64 /p:Version="$PACKAGE_VERSION"
+          cp src/Cli/bin/Release/net10.0/win-x64/publish/otp.exe build/otp_win-x64.exe
+          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj --configuration Release --no-restore --runtime linux-x64 /p:Version="$PACKAGE_VERSION"
+          cp src/Cli/bin/Release/net10.0/linux-x64/publish/otp build/otp_linux-x64
+
+      - name: ⬆️ Upload Windows and Linux binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-non-macos
+          path: |
+            build/otp_win-x64.exe
+            build/otp_linux-x64
+          if-no-files-found: error
+
+  macos:
+    needs: build
+    runs-on: macos-latest
+    environment: release
+
+    steps:
+      - name: ➡️ Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: 📦 NuGet Restore
+        run: dotnet restore otp-cli.slnx
+
+      - name: 🏗️ Build macOS binaries
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          mkdir -p build
+          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj --configuration Release --no-restore -p:PublishAot=true --runtime osx-x64 /p:Version="$PACKAGE_VERSION"
+          cp src/Cli/bin/Release/net10.0/osx-x64/publish/otp build/otp_macos-x64
+          dotnet publish src/Cli/RobertHodgen.Otp.Cli.csproj --configuration Release --no-restore -p:PublishAot=true --runtime osx-arm64 /p:Version="$PACKAGE_VERSION"
+          cp src/Cli/bin/Release/net10.0/osx-arm64/publish/otp build/otp_macos-arm64
+
+      - name: 🔐 Import Apple Signing Certificate
+        env:
+          APPLE_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
+        run: |
+          security create-keychain -p "$APPLE_KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$APPLE_KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          printf '%s' "$APPLE_CERTIFICATE_P12_BASE64" | base64 -D > certificate.p12
+          security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$APPLE_KEYCHAIN_PASSWORD" build.keychain
+          security find-identity -v -p codesigning build.keychain
+
+      - name: ✍️ Sign macOS binaries
+        env:
+          APPLE_CODESIGN_IDENTITY: ${{ secrets.APPLE_CODESIGN_IDENTITY }}
+        run: |
+          codesign --force --timestamp --options runtime --sign "$APPLE_CODESIGN_IDENTITY" build/otp_macos-x64
+          codesign --force --timestamp --options runtime --sign "$APPLE_CODESIGN_IDENTITY" build/otp_macos-arm64
+          codesign --verify --strict --verbose=2 build/otp_macos-x64
+          codesign --verify --strict --verbose=2 build/otp_macos-arm64
+
+      - name: 🗜️ Zip signed macOS binaries
+        run: |
+          ditto -c -k build/otp_macos-x64 build/otp_macos-x64.zip
+          ditto -c -k build/otp_macos-arm64 build/otp_macos-arm64.zip
+
+      - name: 🧾 Notarize macOS ZIPs
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          xcrun notarytool submit build/otp_macos-x64.zip --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD" --wait
+          xcrun notarytool submit build/otp_macos-arm64.zip --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD" --wait
+
+      - name: ⬆️ Upload notarized macOS binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-macos
+          path: |
+            build/otp_macos-x64.zip
+            build/otp_macos-arm64.zip
+          if-no-files-found: error
+
+  publish:
+    needs:
+      - build
+      - macos
+    runs-on: ubuntu-latest
+    environment: release
+
+    steps:
+      - name: ⬇️ Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: build
+          merge-multiple: true
+
+      - name: 📝 Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" build/* --generate-notes --title "$GITHUB_REF_NAME"
