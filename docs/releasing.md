@@ -15,7 +15,7 @@ The release workflow will:
 
 - Read the package version from `package.json` and fail if the tag does not match `v<version>`.
 - Restore, build, and test the solution.
-- Build `src/Cli` with the `package.json` version and build Windows and Linux CLI release artifacts under `build/`.
+- Build `src/Cli` with the `package.json` version and publish Windows and Linux CLI release artifacts under `build/`.
 - Build, sign, zip, and notarize macOS CLI binaries on a macOS runner.
 - Create a GitHub Release with `gh release create` using generated release notes.
 - Attach the CLI artifacts to the GitHub Release.

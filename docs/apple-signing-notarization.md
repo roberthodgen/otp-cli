@@ -68,9 +68,9 @@ Recommended environment protection:
 
 On a `v*` tag push, `.github/workflows/release.yml` runs three jobs:
 
-- `build` on Ubuntu restores, tests, packages NuGet artifacts, and builds Windows/Linux CLI binaries.
+- `build` on Ubuntu restores, builds, tests, and publishes Windows/Linux CLI binaries.
 - `macos` on macOS restores, builds macOS CLI binaries, imports the signing certificate, signs each binary, zips the signed binaries, and submits the zips to Apple notarization.
-- `publish` downloads all artifacts, publishes NuGet packages, and creates the GitHub Release.
+- `publish` downloads CLI artifacts and creates the GitHub Release.
 
 The macOS job signs the raw executables before zipping them:
 
