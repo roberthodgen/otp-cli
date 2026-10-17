@@ -1,6 +1,6 @@
 # Repository Guidance
 
-- `otp-cli.slnx` contains the .NET 10 CLI project at `src/Cli/Cli.csproj` and its test project at `src/Tests/Cli/Cli.Tests.csproj`.
+- `otp-cli.slnx` contains the .NET 10 CLI project at `src/Cli/RobertHodgen.Otp.Cli.csproj` and its test project at `src/Tests/Cli/RobertHodgen.Otp.Cli.Tests.csproj`.
 - The executable assembly is named `otp`; production code uses the `RobertHodgen.Otp.Cli` namespace and tests use `RobertHodgen.Otp.Cli.Tests`.
 - Run `make build` to build the solution and `make test` to execute the xUnit v3 + Shouldly test suite.
 - `CliApplication.CreateRootCommand()` defines the current `System.CommandLine` API: `list`, `create`, `read`, `copy`, and `delete`. Handlers intentionally emit a not-implemented diagnostic to standard error and return exit code `1` until OTP functionality is implemented.

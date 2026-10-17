@@ -9,7 +9,7 @@
   - [x] .NET 10
   - [x] System.CommandLine
   - [x] xUnit + Shouldly unit tests
-  - [x] Build all targets via Makefile
+  - [ ] Build all targets via Makefile (linux, Mac, and Windows)
 
 - [ ] End-to-end tests
   - [ ] Ability to provide `OTP_CLI_OVERRIDE_DIR=temp-dir` for testing full CRUD
