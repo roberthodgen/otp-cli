@@ -22,8 +22,10 @@ and the CI/CD tasks remain outside this increment.
 
 ## Command Model
 
-`CliApplication.CreateRootCommand()` creates a root command named `otp` with
-exactly these child commands:
+`CliApplication.CreateRootCommand()` creates the root command for the `otp`
+executable with exactly these child commands. System.CommandLine derives a
+root command's display name from its host process, so the executable project
+sets its assembly name to `otp` rather than attempting to set `RootCommand.Name`.
 
 | Command | Arguments | Options |
 | --- | --- | --- |
@@ -33,9 +35,11 @@ exactly these child commands:
 | `copy` | required `label` | none |
 | `delete` | required one-or-more `labels` | none |
 
-`label-or-url`, `label`, and `labels` are string arguments. `--secret`,
-`--algorithm`, and `--issuer` are string options; `--period` is an integer
-option. The scaffold delegates syntactic required-argument handling to
+`label-or-url` and `label` are string arguments. `labels` is a one-or-more
+string-array argument so every supplied delete label is retained. `--secret`,
+`--algorithm`, and `--issuer` are optional string options; `--period` is an
+optional integer option. When present, each option requires exactly one value.
+The scaffold delegates syntactic required-argument handling to
 `System.CommandLine`. Semantic validation, including requiring `--secret`
 when `label-or-url` is not an `otpauth://` URI, is deferred until OTP behavior
 is implemented.
@@ -65,7 +69,8 @@ src/
 ```
 
 The solution includes both projects. The test project references the CLI
-project and uses xUnit, Shouldly, and the .NET test SDK.
+project and uses xUnit v3, Shouldly, and the .NET test SDK. The executable
+assembly is named `otp`.
 
 ## Tests
 

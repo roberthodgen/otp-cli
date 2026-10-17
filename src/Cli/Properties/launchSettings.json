@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "list": {
+      "commandName": "Project",
+      "commandLineArgs": "list",
+      "environmentVariables": {
+        "OTP_CLI_OVERRIDE_DIR": "~/.config/otp-test"
+      }
+    },
+    "create": {
+      "commandName": "Project",
+      "commandLineArgs": "create otpauth://totp/example.com?secret=JBSWY3DPFQQHO33SNRSCC",
+      "environmentVariables": {
+        "OTP_CLI_OVERRIDE_DIR": "~/.config/otp-test"
+      }
+    },
+    "read": {
+      "commandName": "Project",
+      "commandLineArgs": "read example.com",
+      "environmentVariables": {
+        "OTP_CLI_OVERRIDE_DIR": "~/.config/otp-test"
+      }
+    }
+  }
+}
