@@ -2,9 +2,12 @@
   <Folder Name="/Solution/">
     <File Path=".gitignore" />
     <File Path="AGENTS.md" />
+    <File Path="Makefile" />
     <File Path="README.md" />
     <File Path="TODO.md" />
   </Folder>
-  <Project Path="src/Cli/Cli.csproj" />
-  <Project Path="src/Tests/Cli/Cli.Tests.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="src/Tests/Cli/RobertHodgen.Otp.Cli.Tests.csproj" />
+  </Folder>
+  <Project Path="src/Cli/RobertHodgen.Otp.Cli.csproj" />
 </Solution>
