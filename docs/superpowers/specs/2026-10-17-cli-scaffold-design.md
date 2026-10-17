@@ -22,8 +22,10 @@ and the CI/CD tasks remain outside this increment.
 
 ## Command Model
 
-`CliApplication.CreateRootCommand()` creates a root command named `otp` with
-exactly these child commands:
+`CliApplication.CreateRootCommand()` creates the root command for the `otp`
+executable with exactly these child commands. System.CommandLine derives a
+root command's display name from its host process, so the executable project
+sets its assembly name to `otp` rather than attempting to set `RootCommand.Name`.
 
 | Command | Arguments | Options |
 | --- | --- | --- |
@@ -65,7 +67,8 @@ src/
 ```
 
 The solution includes both projects. The test project references the CLI
-project and uses xUnit, Shouldly, and the .NET test SDK.
+project and uses xUnit v3, Shouldly, and the .NET test SDK. The executable
+assembly is named `otp`.
 
 ## Tests
 

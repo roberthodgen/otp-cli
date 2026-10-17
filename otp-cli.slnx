@@ -5,4 +5,6 @@
     <File Path="README.md" />
     <File Path="TODO.md" />
   </Folder>
+  <Project Path="src/Cli/Cli.csproj" />
+  <Project Path="src/Tests/Cli/Cli.Tests.csproj" />
 </Solution>
