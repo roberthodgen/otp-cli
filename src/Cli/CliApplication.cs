@@ -29,19 +29,19 @@ public static class CliApplication
         });
         command.Add(new Option<string>("--secret")
         {
-            Arity = ArgumentArity.ZeroOrOne,
+            Arity = ArgumentArity.ExactlyOne,
         });
         command.Add(new Option<int>("--period")
         {
-            Arity = ArgumentArity.ZeroOrOne,
+            Arity = ArgumentArity.ExactlyOne,
         });
         command.Add(new Option<string>("--algorithm")
         {
-            Arity = ArgumentArity.ZeroOrOne,
+            Arity = ArgumentArity.ExactlyOne,
         });
         command.Add(new Option<string>("--issuer")
         {
-            Arity = ArgumentArity.ZeroOrOne,
+            Arity = ArgumentArity.ExactlyOne,
         });
 
         return ConfigurePlaceholder(command, error);

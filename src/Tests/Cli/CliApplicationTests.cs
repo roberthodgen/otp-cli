@@ -35,7 +35,7 @@ public sealed class CliApplicationTests
 
         create.Options.Select(option => option.Name)
             .ShouldBe(new[] { "--secret", "--period", "--algorithm", "--issuer" });
-        create.Options.ShouldAllBe(option => option.Arity.Equals(ArgumentArity.ZeroOrOne));
+        create.Options.ShouldAllBe(option => option.Arity.Equals(ArgumentArity.ExactlyOne));
         create.Options.Single(option => option.Name == "--secret")
             .ShouldBeOfType<Option<string>>();
         create.Options.Single(option => option.Name == "--period")
@@ -112,6 +112,10 @@ public sealed class CliApplicationTests
         [new[] { "read" }],
         [new[] { "read", "first", "second" }],
         [new[] { "create", "value", "--period", "invalid" }],
+        [new[] { "create", "value", "--secret" }],
+        [new[] { "create", "value", "--period" }],
+        [new[] { "create", "value", "--algorithm" }],
+        [new[] { "create", "value", "--issuer" }],
     ];
 
     public static IEnumerable<object[]> PlaceholderCommandLines =>

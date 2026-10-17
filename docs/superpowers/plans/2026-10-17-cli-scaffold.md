@@ -114,7 +114,7 @@ create.Options.Single(option => option.Name == "--period")
     .ShouldBeOfType<Option<int>>();
 ```
 
-Add dedicated tests asserting `ArgumentArity.ExactlyOne` for `label-or-url` and each `label`, `ArgumentArity.OneOrMore` for `labels`, and `ArgumentArity.ZeroOrOne` for each create option. Also assert parser errors for `delete` with no labels, `read` with no label or two labels, and `create value --period invalid`.
+Add dedicated tests asserting `ArgumentArity.ExactlyOne` for `label-or-url`, each `label`, and every present `create` option; assert `ArgumentArity.OneOrMore` for `labels`. Also assert parser errors for `delete` with no labels, `read` with no label or two labels, `create value --period invalid`, and each supplied create option with no value.
 
 - [ ] **Step 2: Run the command-shape tests to verify they fail**
 
@@ -124,7 +124,7 @@ Expected: FAIL because no child commands or input symbols are registered.
 
 - [ ] **Step 3: Implement the command definitions in `CliApplication.CreateRootCommand`**
 
-Create five `Command` instances and attach them to the root in this order: `list`, `create`, `read`, `copy`, `delete`. Register symbols with the exact names and arities from the Interfaces block. Use `Option<string>` for `--secret`, `--algorithm`, and `--issuer`; use `Option<int>` for `--period`. Do not add aliases or validation beyond System.CommandLine's type and arity parsing.
+Create five `Command` instances and attach them to the root in this order: `list`, `create`, `read`, `copy`, `delete`. Register symbols with the exact names and arities from the Interfaces block. Use `Option<string>` for `--secret`, `--algorithm`, and `--issuer`; use `Option<int>` for `--period`. Create options are optional to supply but require one value when supplied. Do not add aliases or validation beyond System.CommandLine's type and arity parsing.
 
 - [ ] **Step 4: Run the command-definition and parser tests**
 
