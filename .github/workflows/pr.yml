@@ -1,0 +1,27 @@
+name: ✅ .NET
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ➡️ Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: 📦 NuGet Restore
+        run: dotnet restore otp-cli.slnx
+
+      - name: 🛠 Build
+        run: dotnet build otp-cli.slnx --configuration Release --no-restore
+
+      - name: ✅ Test
+        run: dotnet test otp-cli.slnx --configuration Release --no-build --no-restore
