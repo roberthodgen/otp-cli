@@ -6,6 +6,9 @@
     <File Path="README.md" />
     <File Path="TODO.md" />
   </Folder>
+  <Folder Name="/Solution/GitHub/">
+    <File Path=".github/pull_request_template.md" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="src/Tests/Cli/RobertHodgen.Otp.Cli.Tests.csproj" />
   </Folder>
