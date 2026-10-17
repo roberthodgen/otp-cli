@@ -1,4 +1,4 @@
-namespace RobertHodgen.Otp.Cli;
+namespace RobertHodgen.Otp.Cli.Otp;
 
 public sealed class OtpValidationException : Exception
 {

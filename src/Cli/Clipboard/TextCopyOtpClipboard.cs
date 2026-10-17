@@ -1,6 +1,6 @@
-using TextCopy;
+namespace RobertHodgen.Otp.Cli.Clipboard;
 
-namespace RobertHodgen.Otp.Cli;
+using TextCopy;
 
 public sealed class TextCopyOtpClipboard : IOtpClipboard
 {

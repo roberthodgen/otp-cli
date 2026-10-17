@@ -2,6 +2,11 @@ using System.CommandLine;
 
 namespace RobertHodgen.Otp.Cli;
 
+using Application;
+using Clipboard;
+using Storage;
+using Time;
+
 public static class CliApplication
 {
     public static RootCommand CreateRootCommand(TextWriter? error = null)

@@ -1,7 +1,7 @@
-using Shouldly;
-using Xunit;
-
 namespace RobertHodgen.Otp.Cli.Tests.Otp;
+
+using Cli.Otp;
+using Cli.Time;
 
 public sealed class TotpGeneratorTests
 {

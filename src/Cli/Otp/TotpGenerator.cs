@@ -1,8 +1,10 @@
+namespace RobertHodgen.Otp.Cli.Otp;
+
 using System.Buffers.Binary;
 using System.Globalization;
 using System.Security.Cryptography;
 
-namespace RobertHodgen.Otp.Cli;
+using Time;
 
 public static class TotpGenerator
 {

@@ -1,7 +1,7 @@
-using Shouldly;
-using Xunit;
-
 namespace RobertHodgen.Otp.Cli.Tests.Storage;
+
+using Cli.Otp;
+using Cli.Storage;
 
 public sealed class FileOtpRepositoryTests
 {

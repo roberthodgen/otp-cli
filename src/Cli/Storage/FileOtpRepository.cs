@@ -1,6 +1,8 @@
 using System.Text;
 
-namespace RobertHodgen.Otp.Cli;
+namespace RobertHodgen.Otp.Cli.Storage;
+
+using Otp;
 
 public sealed class FileOtpRepository : IOtpRepository
 {

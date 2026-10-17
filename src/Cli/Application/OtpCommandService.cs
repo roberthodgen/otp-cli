@@ -1,4 +1,9 @@
-namespace RobertHodgen.Otp.Cli;
+namespace RobertHodgen.Otp.Cli.Application;
+
+using Clipboard;
+using Otp;
+using Storage;
+using Time;
 
 public sealed class OtpCommandService
 {

@@ -1,7 +1,6 @@
-using Shouldly;
-using Xunit;
-
 namespace RobertHodgen.Otp.Cli.Tests.Otp;
+
+using Cli.Otp;
 
 public sealed class OtpLabelTests
 {

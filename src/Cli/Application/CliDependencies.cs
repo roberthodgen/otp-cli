@@ -1,4 +1,4 @@
-namespace RobertHodgen.Otp.Cli;
+namespace RobertHodgen.Otp.Cli.Application;
 
 public sealed class CliDependencies
 {

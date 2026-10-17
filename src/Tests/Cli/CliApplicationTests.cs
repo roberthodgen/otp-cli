@@ -1,8 +1,11 @@
-using Shouldly;
-using System.CommandLine;
-using Xunit;
-
 namespace RobertHodgen.Otp.Cli.Tests;
+
+using System.CommandLine;
+using Cli.Application;
+using Cli.Otp;
+using Cli.Storage;
+using Cli.Time;
+using Clipboard;
 
 public sealed class CliApplicationTests
 {

@@ -1,7 +1,6 @@
-using Shouldly;
-using Xunit;
-
 namespace RobertHodgen.Otp.Cli.Tests.Time;
+
+using Cli.Time;
 
 public sealed class ClockTests
 {

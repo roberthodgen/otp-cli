@@ -18,6 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="Shouldly" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Cli\RobertHodgen.Otp.Cli.csproj" />
   </ItemGroup>
 </Project>

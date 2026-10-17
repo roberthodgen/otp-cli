@@ -1,6 +1,3 @@
-using Shouldly;
-using Xunit;
-
 namespace RobertHodgen.Otp.Cli.Tests.EndToEnd;
 
 public sealed class OtpCliEndToEndTests

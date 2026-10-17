@@ -1,4 +1,4 @@
-namespace RobertHodgen.Otp.Cli;
+namespace RobertHodgen.Otp.Cli.Time;
 
 public readonly record struct OtpTimestamp(DateTime Value)
 {
