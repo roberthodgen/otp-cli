@@ -6,20 +6,20 @@ public static class CliApplication
 {
     public static RootCommand CreateRootCommand(TextWriter? error = null)
     {
-        _ = error ?? Console.Error;
+        var errorWriter = error ?? Console.Error;
 
         var rootCommand = new RootCommand();
 
-        rootCommand.Add(new Command("list"));
-        rootCommand.Add(CreateCreateCommand());
-        rootCommand.Add(CreateSingleLabelCommand("read"));
-        rootCommand.Add(CreateSingleLabelCommand("copy"));
-        rootCommand.Add(CreateDeleteCommand());
+        rootCommand.Add(CreatePlaceholderCommand("list", errorWriter));
+        rootCommand.Add(CreateCreateCommand(errorWriter));
+        rootCommand.Add(CreateSingleLabelCommand("read", errorWriter));
+        rootCommand.Add(CreateSingleLabelCommand("copy", errorWriter));
+        rootCommand.Add(CreateDeleteCommand(errorWriter));
 
         return rootCommand;
     }
 
-    private static Command CreateCreateCommand()
+    private static Command CreateCreateCommand(TextWriter error)
     {
         var command = new Command("create");
 
@@ -44,10 +44,10 @@ public static class CliApplication
             Arity = ArgumentArity.ZeroOrOne,
         });
 
-        return command;
+        return ConfigurePlaceholder(command, error);
     }
 
-    private static Command CreateSingleLabelCommand(string name)
+    private static Command CreateSingleLabelCommand(string name, TextWriter error)
     {
         var command = new Command(name);
 
@@ -56,16 +56,32 @@ public static class CliApplication
             Arity = ArgumentArity.ExactlyOne,
         });
 
-        return command;
+        return ConfigurePlaceholder(command, error);
     }
 
-    private static Command CreateDeleteCommand()
+    private static Command CreateDeleteCommand(TextWriter error)
     {
         var command = new Command("delete");
 
         command.Add(new Argument<string[]>("labels")
         {
             Arity = ArgumentArity.OneOrMore,
+        });
+
+        return ConfigurePlaceholder(command, error);
+    }
+
+    private static Command CreatePlaceholderCommand(string name, TextWriter error)
+    {
+        return ConfigurePlaceholder(new Command(name), error);
+    }
+
+    private static Command ConfigurePlaceholder(Command command, TextWriter error)
+    {
+        command.SetAction(_ =>
+        {
+            error.WriteLine($"otp {command.Name} is not implemented.");
+            return CliExitCodes.NotImplemented;
         });
 
         return command;

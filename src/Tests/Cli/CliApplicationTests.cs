@@ -79,12 +79,47 @@ public sealed class CliApplicationTests
         result.Errors.ShouldNotBeEmpty();
     }
 
+    [Theory]
+    [MemberData(nameof(PlaceholderCommandLines))]
+    public void Placeholder_command_writes_diagnostic_and_returns_not_implemented(
+        string commandName,
+        string[] arguments)
+    {
+        using var error = new StringWriter();
+
+        var exitCode = CliApplication.CreateRootCommand(error).Parse(arguments).Invoke();
+
+        exitCode.ShouldBe(CliExitCodes.NotImplemented);
+        error.ToString().ShouldBe($"otp {commandName} is not implemented.{Environment.NewLine}");
+    }
+
+    [Fact]
+    public void Create_without_secret_reaches_placeholder_handler()
+    {
+        using var error = new StringWriter();
+
+        var exitCode = CliApplication.CreateRootCommand(error)
+            .Parse(["create", "example.com"])
+            .Invoke();
+
+        exitCode.ShouldBe(CliExitCodes.NotImplemented);
+        error.ToString().ShouldBe($"otp create is not implemented.{Environment.NewLine}");
+    }
+
     public static IEnumerable<object[]> InvalidCommandLines =>
     [
         [new[] { "delete" }],
         [new[] { "read" }],
         [new[] { "read", "first", "second" }],
         [new[] { "create", "value", "--period", "invalid" }],
+    ];
+
+    public static IEnumerable<object[]> PlaceholderCommandLines =>
+    [
+        ["list", new[] { "list" }],
+        ["read", new[] { "read", "example.com" }],
+        ["copy", new[] { "copy", "example.com" }],
+        ["delete", new[] { "delete", "example.com" }],
     ];
 
     private static Command GetSubcommand(string name) =>
