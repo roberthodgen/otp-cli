@@ -5,32 +5,22 @@ using Otp;
 using Storage;
 using Time;
 
-public sealed class OtpCommandService
+public sealed class OtpCommandService(IOtpRepository repository, ISystemClock clock, IOtpClipboard clipboard)
 {
     private const string MissingLabelError = "no OTP with that label was found";
-    private readonly IOtpRepository _repository;
-    private readonly ISystemClock _clock;
-    private readonly IOtpClipboard _clipboard;
-
-    public OtpCommandService(IOtpRepository repository, ISystemClock clock, IOtpClipboard clipboard)
-    {
-        _repository = repository;
-        _clock = clock;
-        _clipboard = clipboard;
-    }
 
     public OtpCommandOutcome List()
     {
         try
         {
-            var labels = _repository.List();
+            var labels = repository.List();
             var output = $"total {labels.Count}{Environment.NewLine}" +
                          string.Concat(labels.Select(label => label.Value + Environment.NewLine));
-            return Success(output);
+            return OtpCommandOutcome.Success(output);
         }
         catch (Exception)
         {
-            return Failure("unable to list OTPs");
+            return OtpCommandOutcome.Failure("unable to list OTPs");
         }
     }
 
@@ -41,24 +31,24 @@ public sealed class OtpCommandService
             var isUri = labelOrUrl.StartsWith("otpauth://", StringComparison.OrdinalIgnoreCase);
             if (isUri && (secret is not null || period is not null || algorithm is not null || issuer is not null))
             {
-                return Failure("OTP URI creation options cannot be combined");
+                return OtpCommandOutcome.Failure("OTP URI creation options cannot be combined");
             }
 
             if (!isUri && secret is null)
             {
-                return Failure("a secret is required when creating an OTP from a label");
+                return OtpCommandOutcome.Failure("a secret is required when creating an OTP from a label");
             }
 
             var credential = isUri
                 ? TotpCredential.Parse(labelOrUrl)
                 : TotpCredential.Create(OtpLabel.Parse(labelOrUrl), secret!, period, algorithm, issuer);
-            return _repository.CreateIfAbsent(credential.Label, credential.CanonicalUri)
-                ? Success()
-                : Failure("an OTP with that label already exists");
+            return repository.CreateIfAbsent(credential.Label, credential.CanonicalUri)
+                ? OtpCommandOutcome.Success()
+                : OtpCommandOutcome.Failure("an OTP with that label already exists");
         }
         catch (Exception)
         {
-            return Failure("unable to create OTP");
+            return OtpCommandOutcome.Failure("unable to create OTP");
         }
     }
 
@@ -68,12 +58,12 @@ public sealed class OtpCommandService
         {
             var credential = GetCredential(label);
             return credential is null
-                ? Failure(MissingLabelError)
-                : Success(TotpGenerator.Generate(credential, _clock.Now) + Environment.NewLine);
+                ? OtpCommandOutcome.Failure(MissingLabelError)
+                : OtpCommandOutcome.Success(TotpGenerator.Generate(credential, clock.Now) + Environment.NewLine);
         }
         catch (Exception)
         {
-            return Failure(MissingLabelError);
+            return OtpCommandOutcome.Failure(MissingLabelError);
         }
     }
 
@@ -84,15 +74,15 @@ public sealed class OtpCommandService
             var credential = GetCredential(label);
             if (credential is null)
             {
-                return Failure(MissingLabelError);
+                return OtpCommandOutcome.Failure(MissingLabelError);
             }
 
-            _clipboard.Copy(TotpGenerator.Generate(credential, _clock.Now));
-            return Success();
+            clipboard.Copy(TotpGenerator.Generate(credential, clock.Now));
+            return OtpCommandOutcome.Success();
         }
         catch (Exception)
         {
-            return Failure("unable to copy OTP");
+            return OtpCommandOutcome.Failure("unable to copy OTP");
         }
     }
 
@@ -104,26 +94,20 @@ public sealed class OtpCommandService
             foreach (var label in labels)
             {
                 currentLabel = label;
-                _repository.DeleteIfPresent(OtpLabel.Parse(label));
+                repository.DeleteIfPresent(OtpLabel.Parse(label));
             }
 
-            return Success();
+            return OtpCommandOutcome.Success();
         }
         catch (Exception)
         {
-            return Failure($"unable to delete OTP: {currentLabel}");
+            return OtpCommandOutcome.Failure($"unable to delete OTP: {currentLabel}");
         }
     }
 
     private TotpCredential? GetCredential(string label)
     {
-        var uri = _repository.Get(OtpLabel.Parse(label));
+        var uri = repository.Get(OtpLabel.Parse(label));
         return uri is null ? null : TotpCredential.Parse(uri);
     }
-
-    private static OtpCommandOutcome Success(string? output = null) =>
-        new(CliExitCodes.Success, output, null);
-
-    private static OtpCommandOutcome Failure(string error) =>
-        new(CliExitCodes.Failure, null, error + Environment.NewLine);
 }

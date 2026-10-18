@@ -1,17 +1,10 @@
 namespace RobertHodgen.Otp.Cli.Application;
 
-public sealed class CliDependencies
+public sealed class CliDependencies(OtpCommandService service, TextWriter output, TextWriter error)
 {
-    public CliDependencies(OtpCommandService service, TextWriter output, TextWriter error)
-    {
-        Service = service;
-        Output = output;
-        Error = error;
-    }
+    public OtpCommandService Service { get; } = service;
 
-    public OtpCommandService Service { get; }
+    public TextWriter Output { get; } = output;
 
-    public TextWriter Output { get; }
-
-    public TextWriter Error { get; }
+    public TextWriter Error { get; } = error;
 }

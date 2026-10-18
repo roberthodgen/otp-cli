@@ -4,15 +4,9 @@ namespace RobertHodgen.Otp.Cli.Storage;
 
 using Otp;
 
-public sealed class FileOtpRepository : IOtpRepository
+public sealed class FileOtpRepository(string rootDirectory) : IOtpRepository
 {
     private static readonly Encoding Utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
-    private readonly string _rootDirectory;
-
-    public FileOtpRepository(string rootDirectory)
-    {
-        _rootDirectory = rootDirectory;
-    }
 
     public static FileOtpRepository FromEnvironment()
     {
@@ -26,12 +20,12 @@ public sealed class FileOtpRepository : IOtpRepository
 
     public IReadOnlyList<OtpLabel> List()
     {
-        if (!Directory.Exists(_rootDirectory))
+        if (!Directory.Exists(rootDirectory))
         {
             return [];
         }
 
-        return Directory.EnumerateFiles(_rootDirectory)
+        return Directory.EnumerateFiles(rootDirectory)
             .Select(Path.GetFileName)
             .Where(fileName => fileName is not null)
             .Select(fileName => OtpLabel.FromStorageFileName(fileName!))
@@ -47,7 +41,7 @@ public sealed class FileOtpRepository : IOtpRepository
 
     public bool CreateIfAbsent(OtpLabel label, string canonicalUri)
     {
-        Directory.CreateDirectory(_rootDirectory);
+        Directory.CreateDirectory(rootDirectory);
         var path = GetPath(label);
 
         try
@@ -65,7 +59,7 @@ public sealed class FileOtpRepository : IOtpRepository
 
     public void DeleteIfPresent(OtpLabel label)
     {
-        if (!Directory.Exists(_rootDirectory))
+        if (!Directory.Exists(rootDirectory))
         {
             return;
         }
@@ -74,5 +68,5 @@ public sealed class FileOtpRepository : IOtpRepository
     }
 
     private string GetPath(OtpLabel label) =>
-        Path.Combine(_rootDirectory, label.ToStorageFileName());
+        Path.Combine(rootDirectory, label.ToStorageFileName());
 }

@@ -24,3 +24,4 @@
 - [x] Implement `otp read`
 - [x] Implement `otp copy`
 - [x] Implement `otp delete`
+- [ ] Implement `otp create --secret-raw` for non-base32 encoded secrets

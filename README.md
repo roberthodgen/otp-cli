@@ -1,8 +1,5 @@
 # One-time Password (OTP) Command Line Interface (CLI)
 
-> [!NOTE]
-> Work in-progress: this repo is in an unfished state and this README represents the goals and aspirations of the project.
-
 ## Get and Install
 
 Visit the [releases](https://github.com/roberthodgen/otp-cli/releases) page to download the latest release.

@@ -53,6 +53,6 @@ public static class TotpGenerator
             }
         }
 
-        return bytes.ToArray();
+        return [.. bytes,];
     }
 }

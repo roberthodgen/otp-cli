@@ -25,7 +25,7 @@ public sealed class TotpCredential
 
     internal int Period { get; }
 
-    internal string? Issuer { get; }
+    private string? Issuer { get; }
 
     public static TotpCredential Create(OtpLabel label, string secret, int? period, string? algorithm, string? issuer) =>
         new(label, NormalizeSecret(secret), NormalizeAlgorithm(algorithm ?? "SHA1"), 6, NormalizePeriod(period ?? 30), issuer);
