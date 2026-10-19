@@ -1,8 +1,11 @@
-using Shouldly;
-using System.CommandLine;
-using Xunit;
-
 namespace RobertHodgen.Otp.Cli.Tests;
+
+using System.CommandLine;
+using Cli.Application;
+using Cli.Otp;
+using Cli.Storage;
+using Cli.Time;
+using Clipboard;
 
 public sealed class CliApplicationTests
 {
@@ -79,22 +82,8 @@ public sealed class CliApplicationTests
         result.Errors.ShouldNotBeEmpty();
     }
 
-    [Theory]
-    [MemberData(nameof(PlaceholderCommandLines))]
-    public void Placeholder_command_writes_diagnostic_and_returns_not_implemented(
-        string commandName,
-        string[] arguments)
-    {
-        using var error = new StringWriter();
-
-        var exitCode = CliApplication.CreateRootCommand(error).Parse(arguments).Invoke();
-
-        exitCode.ShouldBe(CliExitCodes.NotImplemented);
-        error.ToString().ShouldBe($"otp {commandName} is not implemented.{Environment.NewLine}");
-    }
-
     [Fact]
-    public void Create_without_secret_reaches_placeholder_handler()
+    public void Create_without_secret_returns_a_validation_error()
     {
         using var error = new StringWriter();
 
@@ -102,8 +91,29 @@ public sealed class CliApplicationTests
             .Parse(["create", "example.com"])
             .Invoke();
 
-        exitCode.ShouldBe(CliExitCodes.NotImplemented);
-        error.ToString().ShouldBe($"otp create is not implemented.{Environment.NewLine}");
+        exitCode.ShouldBe(CliExitCodes.Failure);
+        error.ToString().ShouldBe("a secret is required when creating an OTP from a label" + Environment.NewLine);
+    }
+
+    [Fact]
+    public void Read_writes_only_the_service_output_to_the_configured_writer()
+    {
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+        var repository = new InMemoryRepository
+        {
+            ["example.com"] = "otpauth://totp/example.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&digits=8",
+        };
+        var dependencies = new CliDependencies(
+            new OtpCommandService(repository, KnownSystemClock.FromTime(DateTime.UnixEpoch.AddSeconds(59)), new NullClipboard()),
+            output,
+            error);
+
+        var exitCode = CliApplication.CreateRootCommand(dependencies).Parse(["read", "example.com"]).Invoke();
+
+        exitCode.ShouldBe(0);
+        output.ToString().ShouldBe("94287082" + Environment.NewLine);
+        error.ToString().ShouldBeEmpty();
     }
 
     public static IEnumerable<object[]> InvalidCommandLines =>
@@ -118,14 +128,32 @@ public sealed class CliApplicationTests
         [new[] { "create", "value", "--issuer" }],
     ];
 
-    public static IEnumerable<object[]> PlaceholderCommandLines =>
-    [
-        ["list", new[] { "list" }],
-        ["read", new[] { "read", "example.com" }],
-        ["copy", new[] { "copy", "example.com" }],
-        ["delete", new[] { "delete", "example.com" }],
-    ];
-
     private static Command GetSubcommand(string name) =>
         CliApplication.CreateRootCommand().Subcommands.Single(command => command.Name == name);
+
+    private sealed class NullClipboard : IOtpClipboard
+    {
+        public void Copy(string text)
+        {
+        }
+    }
+
+    private sealed class InMemoryRepository : IOtpRepository
+    {
+        private readonly Dictionary<string, string> _entries = new(StringComparer.Ordinal);
+
+        public string this[string label]
+        {
+            get => _entries[label];
+            set => _entries[label] = value;
+        }
+
+        public IReadOnlyList<OtpLabel> List() => _entries.Keys.Select(OtpLabel.Parse).ToArray();
+
+        public string? Get(OtpLabel label) => _entries.GetValueOrDefault(label.Value);
+
+        public bool CreateIfAbsent(OtpLabel label, string canonicalUri) => _entries.TryAdd(label.Value, canonicalUri);
+
+        public void DeleteIfPresent(OtpLabel label) => _entries.Remove(label.Value);
+    }
 }
